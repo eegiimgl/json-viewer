@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JSON Formatter & Beautifier</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #020617;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --accent-2: #818cf8;
+    --green: #4ade80;
+    --red: #f87171;
+    --key: #7dd3fc;
+    --string: #86efac;
+    --number: #fbbf24;
+    --boolean: #c084fc;
+    --null: #fb7185;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-sans-system, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+    background: radial-gradient(1200px 600px at 20% -10%, #1e40af33, transparent),
+                radial-gradient(1000px 500px at 90% 0%, #6d28d933, transparent),
+                var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 20px 28px 10px;
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+  }
+  header h1 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+
+  .toolbar {
+    max-width: 1280px;
+    width: 100%;
+    margin: 14px auto 0;
+    padding: 0 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .toolbar button, .toolbar select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: .15s;
+  }
+  .toolbar button:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .toolbar button.primary {
+    background: linear-gradient(90deg, #0ea5e9, #6366f1);
+    border: none;
+    font-weight: 600;
+  }
+  .toolbar .spacer { flex: 1; }
+  .status {
+    font-size: 13px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #020617aa;
+  }
+  .status.valid { color: var(--green); border-color: #166534; }
+  .status.invalid { color: var(--red); border-color: #7f1d1d; }
+
+  main {
+    max-width: 1280px;
+    width: 100%;
+    margin: 12px auto 28px;
+    padding: 0 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    flex: 1;
+  }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+
+  .pane {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 540px;
+  }
+  .pane-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: #0f172acc;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .pane-head .actions { display: flex; gap: 6px; }
+  .pane-head .actions button {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+  }
+  textarea {
+    flex: 1;
+    width: 100%;
+    min-height: 480px;
+    resize: vertical;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e2e8f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.6;
+    padding: 16px;
+  }
+  textarea::placeholder { color: #475569; }
+  pre {
+    flex: 1;
+    margin: 0;
+    padding: 16px;
+    overflow: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.6;
+    white-space: pre;
+  }
+  .tok-key { color: var(--key); }
+  .tok-string { color: var(--string); }
+  .tok-number { color: var(--number); }
+  .tok-boolean { color: var(--boolean); }
+  .tok-null { color: var(--null); font-style: italic; }
+  .error-box {
+    display: none;
+    margin: 0 14px 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #7f1d1d33;
+    border: 1px solid #7f1d1d;
+    color: #fecaca;
+    font-size: 13px;
+    font-family: ui-monospace, monospace;
+    white-space: pre-wrap;
+  }
+  .error-box.show { display: block; }
+  .meta {
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    display: flex;
+    gap: 14px;
+  }
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding-bottom: 20px; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>JSON <span>Formatter</span></h1>
+    <p>Paste raw JSON on the left — beautified, color-highlighted output appears on the right instantly.</p>
+  </header>
+
+  <div class="toolbar">
+    <button class="primary" id="btn-format">✨ Format</button>
+    <button id="btn-minify">Minify</button>
+    <button id="btn-sample">Load sample</button>
+    <button id="btn-clear">Clear</button>
+    <div class="spacer"></div>
+    <select id="indent" title="Indent size">
+      <option value="2" selected>Indent: 2 spaces</option>
+      <option value="4">Indent: 4 spaces</option>
+      <option value="tab">Indent: Tab</option>
+    </select>
+    <div class="status" id="status">Waiting for input…</div>
+  </div>
+
+  <main>
+    <section class="pane">
+      <div class="pane-head">
+        <span>📥 Raw JSON</span>
+        <div class="actions">
+          <button id="btn-paste">Paste</button>
+          <button id="btn-clear-left">Clear</button>
+        </div>
+      </div>
+      <textarea id="input" placeholder='Paste your JSON here, e.g. {"name":"Ada","skills":["json","beautify"],"active":true,"score":99.5,"meta":null}' spellcheck="false"></textarea>
+      <div class="meta"><span id="in-size">0 chars</span><span id="in-lines">1 line</span></div>
+    </section>
+
+    <section class="pane">
+      <div class="pane-head">
+        <span>✨ Beautified</span>
+        <div class="actions">
+          <button id="btn-copy">Copy</button>
+          <button id="btn-download">Download</button>
+        </div>
+      </div>
+      <pre id="output"><span style="color:#475569">// Formatted JSON will appear here…</span></pre>
+      <div class="error-box" id="error"></div>
+      <div class="meta"><span id="out-meta">—</span></div>
+    </section>
+  </main>
+
+  <footer>100% client-side — your JSON never leaves the browser.</footer>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const input = $('input'), output = $('output'), errorBox = $('error'),
+        status = $('status'), indentSel = $('indent');
+
+  let lastFormatted = '';
+
+  function getIndent() {
+    const v = indentSel.value;
+    return v === 'tab' ? '\t' : Number(v);
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Syntax highlight a pretty-printed JSON string
+  function highlight(json) {
+    return escapeHtml(json).replace(
+      /(&quot;|"(?:\\u[0-9a-fA-F]{4}|\\[^u]|[^\\"])*")(\s*:)?|\b(true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?/g,
+      (m, str, colon, bool) => {
+        if (str) {
+          // normalize &quot; artifact — we escaped quotes? no, " stays as ". Handle both.
+          if (colon) return `<span class="tok-key">${str}</span>${colon}`;
+          return `<span class="tok-string">${str}</span>`;
+        }
+        if (bool) return `<span class="tok-boolean">${bool}</span>`;
+        if (m === 'null') return `<span class="tok-null">null</span>`;
+        return `<span class="tok-number">${m}</span>`;
+      }
+    );
+  }
+
+  // Keys come through as "key": — the regex above catches them via group 2 (colon)
+  function format(live = false) {
+    const raw = input.value.trim();
+    $('in-size').textContent = `${input.value.length} chars`;
+    $('in-lines').textContent = `${input.value.split('\n').length} line(s)`;
+
+    if (!raw) {
+      output.innerHTML = '<span style="color:#475569">// Formatted JSON will appear here…</span>';
+      errorBox.classList.remove('show');
+      status.textContent = 'Waiting for input…';
+      status.className = 'status';
+      $('out-meta').textContent = '—';
+      lastFormatted = '';
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      lastFormatted = JSON.stringify(parsed, null, getIndent());
+      output.innerHTML = highlight(lastFormatted);
+      errorBox.classList.remove('show');
+      status.textContent = '✓ Valid JSON';
+      status.className = 'status valid';
+      const keys = typeof parsed === 'object' && parsed !== null ? Object.keys(parsed).length : '—';
+      $('out-meta').textContent = `${lastFormatted.length} chars • ${lastFormatted.split('\n').length} lines • top-level keys: ${keys}`;
+    } catch (e) {
+      lastFormatted = '';
+      errorBox.textContent = '✕ ' + e.message;
+      errorBox.classList.add('show');
+      status.textContent = '✕ Invalid JSON';
+      status.className = 'status invalid';
+      if (!live) output.innerHTML = '<span style="color:#475569">// Fix the error above to see output…</span>';
+      $('out-meta').textContent = '—';
+    }
+  }
+
+  let t;
+  input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => format(true), 250); });
+  indentSel.addEventListener('change', () => format(true));
+
+  $('btn-format').onclick = () => {
+    format(false);
+    if (lastFormatted) input.value = lastFormatted; // also tidy the input
+    format(true);
+  };
+  $('btn-minify').onclick = () => {
+    try {
+      const parsed = JSON.parse(input.value);
+      lastFormatted = JSON.stringify(parsed);
+      input.value = lastFormatted;
+      format(true);
+    } catch (e) { format(false); }
+  };
+  $('btn-sample').onclick = () => {
+    input.value = JSON.stringify({
+      name: "Ada Lovelace",
+      role: "Pioneer of computing",
+      active: true,
+      score: 99.5,
+      tags: ["analytical-engine", "algorithms", "math"],
+      address: { city: "London", year: 1843, retired: false },
+      nickname: null
+    }, null, 2);
+    format(true);
+  };
+  $('btn-clear').onclick = $('btn-clear-left').onclick = () => { input.value = ''; format(true); input.focus(); };
+  $('btn-paste').onclick = async () => {
+    try { input.value = await navigator.clipboard.readText(); format(true); }
+    catch { alert('Clipboard blocked — press Ctrl/Cmd+V to paste manually.'); }
+  };
+  $('btn-copy').onclick = async () => {
+    if (!lastFormatted) return alert('Nothing valid to copy yet.');
+    await navigator.clipboard.writeText(lastFormatted);
+    const b = $('btn-copy'); b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy', 1200);
+  };
+  $('btn-download').onclick = () => {
+    if (!lastFormatted) return alert('Nothing valid to download yet.');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([lastFormatted], { type: 'application/json' }));
+    a.download = 'formatted.json'; a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  // Load sample on first open so the colors are visible immediately
+  $('btn-sample').click();
+</script>
+</body>
+</html>
