@@ -106,6 +106,8 @@
     flex: 1;
   }
   @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  main.focus-out { grid-template-columns: 1fr; }
+  main.focus-out #pane-raw { display: none; }
 
   .pane {
     background: var(--panel-2);
@@ -222,8 +224,8 @@
     <div class="status" id="status">Waiting for input…</div>
   </div>
 
-  <main>
-    <section class="pane">
+  <main id="layout">
+    <section class="pane" id="pane-raw">
       <div class="pane-head">
         <span>📥 Raw JSON</span>
         <div class="actions">
@@ -235,10 +237,11 @@
       <div class="meta"><span id="in-size">0 chars</span><span id="in-lines">1 line</span></div>
     </section>
 
-    <section class="pane">
+    <section class="pane" id="pane-out">
       <div class="pane-head">
         <span>✨ Beautified</span>
         <div class="actions">
+          <button id="btn-focus" title="Show only beautified view full-width (Esc to exit)">⛶ Expand</button>
           <button id="btn-wrap" title="Toggle line wrapping">Wrap: Off</button>
           <button id="btn-copy">Copy</button>
           <button id="btn-download">Download</button>
@@ -366,6 +369,17 @@
     a.download = 'formatted.json'; a.click();
     URL.revokeObjectURL(a.href);
   };
+  // Focus mode: beautified view full-width (Esc to exit)
+  const layout = $('layout'), focusBtn = $('btn-focus');
+  function setFocus(on) {
+    layout.classList.toggle('focus-out', on);
+    focusBtn.textContent = on ? '⛶ Collapse' : '⛶ Expand';
+    focusBtn.classList.toggle('active', on);
+  }
+  focusBtn.onclick = () => setFocus(!layout.classList.contains('focus-out'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setFocus(false);
+  });
   // Wrapped view toggle (persisted)
   const wrapBtn = $('btn-wrap');
   function setWrap(on) {
