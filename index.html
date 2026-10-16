@@ -164,6 +164,15 @@
     line-height: 1.6;
     white-space: pre;
   }
+  pre.wrap {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .pane-head .actions button.active {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
   .tok-key { color: var(--key); }
   .tok-string { color: var(--string); }
   .tok-number { color: var(--number); }
@@ -230,6 +239,7 @@
       <div class="pane-head">
         <span>✨ Beautified</span>
         <div class="actions">
+          <button id="btn-wrap" title="Toggle line wrapping">Wrap: Off</button>
           <button id="btn-copy">Copy</button>
           <button id="btn-download">Download</button>
         </div>
@@ -356,6 +366,16 @@
     a.download = 'formatted.json'; a.click();
     URL.revokeObjectURL(a.href);
   };
+  // Wrapped view toggle (persisted)
+  const wrapBtn = $('btn-wrap');
+  function setWrap(on) {
+    output.classList.toggle('wrap', on);
+    wrapBtn.textContent = on ? 'Wrap: On' : 'Wrap: Off';
+    wrapBtn.classList.toggle('active', on);
+    try { localStorage.setItem('jv-wrap', on ? '1' : '0'); } catch {}
+  }
+  wrapBtn.onclick = () => setWrap(!output.classList.contains('wrap'));
+  try { setWrap(localStorage.getItem('jv-wrap') === '1'); } catch {}
 
   // Load sample on first open so the colors are visible immediately
   $('btn-sample').click();
