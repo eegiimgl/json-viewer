@@ -3,12 +3,59 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>JSON Formatter & Beautifier</title>
+<title>JSON Formatter &amp; Beautifier — Free Online JSON Viewer</title>
+<meta name="description" content="Free online JSON formatter and beautifier. Paste raw JSON to instantly validate, beautify, and color-highlight it side by side. 100% client-side — your data never leaves the browser." />
+<meta name="keywords" content="json formatter, json beautifier, json viewer, json pretty print, format json online, json validator, beautify json" />
+<meta name="author" content="eegiimgl" />
+<meta name="robots" content="index, follow" />
+<meta name="googlebot" content="index, follow" />
+<link rel="canonical" href="https://json-viewer.eegii.dev/" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="JSON Formatter" />
+<meta property="og:title" content="JSON Formatter & Beautifier — Free Online JSON Viewer" />
+<meta property="og:description" content="Paste raw JSON to instantly validate, beautify, and color-highlight it side by side. Fast, free, and 100% client-side." />
+<meta property="og:url" content="https://json-viewer.eegii.dev/" />
+<meta property="og:image" content="https://json-viewer.eegii.dev/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="JSON Formatter — split view showing raw JSON and beautified output" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="JSON Formatter & Beautifier — Free Online JSON Viewer" />
+<meta name="twitter:description" content="Paste raw JSON to instantly validate, beautify, and color-highlight it side by side. 100% client-side." />
+<meta name="twitter:image" content="https://json-viewer.eegii.dev/og-image.png" />
+
 <link rel="icon" type="image/svg+xml" href="icon.svg" />
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 <meta name="theme-color" content="#0f172a" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "JSON Formatter & Beautifier",
+  "url": "https://json-viewer.eegii.dev/",
+  "description": "Free online JSON formatter, beautifier, and validator. Paste raw JSON to instantly validate and color-highlight it side by side, 100% client-side.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Beautify and format JSON",
+    "Validate JSON with error messages",
+    "Syntax highlighting",
+    "Minify JSON",
+    "Wrapped and full-width view",
+    "Copy and download formatted JSON",
+    "Runs entirely in the browser"
+  ]
+}
+</script>
 <style>
   :root {
     --bg: #0f172a;
@@ -202,6 +249,30 @@
     gap: 14px;
   }
   footer { text-align: center; color: var(--muted); font-size: 12px; padding-bottom: 20px; }
+  .info {
+    max-width: 1280px;
+    width: 100%;
+    margin: 8px auto 24px;
+    padding: 0 28px;
+    color: var(--muted);
+  }
+  .info h2 { font-size: 20px; color: var(--text); margin: 0 0 8px; }
+  .info p { font-size: 14px; line-height: 1.7; margin: 0 0 12px; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+  }
+  @media (max-width: 860px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-grid div {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .info-grid h3 { font-size: 14px; color: var(--accent); margin: 0 0 6px; }
+  .info-grid p { font-size: 13px; margin: 0; }
 </style>
 </head>
 <body>
@@ -252,6 +323,28 @@
       <div class="meta"><span id="out-meta">—</span></div>
     </section>
   </main>
+
+  <section class="info">
+    <h2>Free Online JSON Formatter &amp; Beautifier</h2>
+    <p>This JSON formatter validates, beautifies, and color-highlights your JSON instantly. Paste raw
+    JSON on the left and the pretty-printed output appears on the right with syntax highlighting for
+    keys, strings, numbers, booleans, and null. If your JSON is invalid, you get a clear error message
+    showing exactly what went wrong.</p>
+    <div class="info-grid">
+      <div>
+        <h3>Beautify &amp; validate</h3>
+        <p>Format minified JSON into readable, indented output and catch syntax errors immediately.</p>
+      </div>
+      <div>
+        <h3>Private by design</h3>
+        <p>Everything runs in your browser — your JSON is never uploaded to any server.</p>
+      </div>
+      <div>
+        <h3>Flexible view</h3>
+        <p>Toggle line wrapping, expand to full width, choose 2-space, 4-space, or tab indentation.</p>
+      </div>
+    </div>
+  </section>
 
   <footer>100% client-side — your JSON never leaves the browser.</footer>
 
